@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "122521102",
+    "firebase_url": "https://birthday-tracker-app.firebaseio.com",
+    "project_id": "birthday-tracker-app",
+    "storage_bucket": "birthday-tracker-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:122521102:android:db83a87a4445ef5f4b9e5f",
+        "android_client_info": {
+          "package_name": "com.aneagu.birthdaytracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "122521102-uu2qr0dpi1c9g4g2n37hgg5rn3gdkmqb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.aneagu.birthdaytracker",
+            "certificate_hash": "86f47b7c75321cfed0cd9eca493eeddc0619f9dc"
+          }
+        },
+        {
+          "client_id": "122521102-0sqnepn6j2ne84j0r5fgp731ecgj4s34.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARLf6W3Y73M5kA34APvCye_8yzd6TBwi8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "122521102-0sqnepn6j2ne84j0r5fgp731ecgj4s34.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
