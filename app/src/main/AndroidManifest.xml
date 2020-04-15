@@ -4,9 +4,8 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
 
 
     <application
@@ -25,13 +24,22 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".ui.birthdays.NewBirthdayActivity"></activity>
+        <activity
+            android:name=".ui.birthdays.NewBirthdayActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

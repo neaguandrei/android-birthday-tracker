@@ -4,7 +4,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-
 @Entity
 public class Birthday {
 
@@ -22,6 +21,15 @@ public class Birthday {
 
     @ColumnInfo(name = "picture_local")
     private String pictureLocal;
+
+    @ColumnInfo(name = "deleted_on")
+    private String deleteOn;
+
+    @ColumnInfo(name = "updated_on")
+    private String updatedOn;
+
+    public Birthday() {
+    }
 
     public Birthday(String fullName, String date, String pictureUrl, String pictureLocal) {
         this.fullName = fullName;
@@ -68,5 +76,26 @@ public class Birthday {
 
     public void setPictureLocal(String pictureLocal) {
         this.pictureLocal = pictureLocal;
+    }
+
+    public String getDeleteOn() {
+        return deleteOn;
+    }
+
+    public void setDeleteOn(String deleteOn) {
+        this.deleteOn = deleteOn;
+    }
+
+    public String getUpdatedOn() {
+        return updatedOn;
+    }
+
+    public void setUpdatedOn(String updatedOn) {
+        this.updatedOn = updatedOn;
+    }
+
+    @Override
+    public String toString() {
+        return fullName + "'s birthday is on " + date;
     }
 }

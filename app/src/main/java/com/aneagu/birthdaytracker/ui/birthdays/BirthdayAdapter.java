@@ -3,7 +3,6 @@ package com.aneagu.birthdaytracker.ui.birthdays;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,15 +13,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.aneagu.birthdaytracker.R;
 import com.aneagu.birthdaytracker.data.repository.local.Birthday;
-import com.aneagu.birthdaytracker.utils.Utils;
+import com.aneagu.birthdaytracker.utils.DateUtils;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -31,6 +28,10 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class BirthdayAdapter extends RecyclerView.Adapter<BirthdayAdapter.ViewHolder> {
 
     private List<Birthday> dataSet;
+
+    private Birthday recentlyDeletedItem;
+
+    private int recentlyDeletedItemPosition;
 
     public BirthdayAdapter(List<Birthday> dataSet) {
         this.dataSet = dataSet;
@@ -46,23 +47,25 @@ public class BirthdayAdapter extends RecyclerView.Adapter<BirthdayAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Birthday birthday = dataSet.get(position);
-
         modifyDate(holder, birthday);
 
+        boolean isDefault = true;
         if (birthday.getPictureLocal() != null) {
             Bitmap bitmap = getBitmap(holder, birthday);
             if (bitmap != null) {
+                isDefault = false;
                 holder.picture.setImageBitmap(bitmap);
             }
         }
 
-        holder.name.setText(birthday.getFullName());
-        holder.daysUntil.setText(findDaysLeft(birthday));
-        if (birthday.getPictureLocal() == null) {
+        if (isDefault) {
             holder.letter.setVisibility(View.VISIBLE);
             String text = String.valueOf(birthday.getFullName().toUpperCase().charAt(0));
             holder.letter.setText(text);
         }
+
+        holder.name.setText(birthday.getFullName());
+        holder.daysUntil.setText(DateUtils.findDaysLeft(birthday));
     }
 
     @Nullable
@@ -78,37 +81,24 @@ public class BirthdayAdapter extends RecyclerView.Adapter<BirthdayAdapter.ViewHo
     }
 
     private void modifyDate(@NonNull ViewHolder holder, Birthday birthday) {
-        int flags = DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_NO_YEAR;
+        int flags = android.text.format.DateUtils.FORMAT_SHOW_DATE | android.text.format.DateUtils.FORMAT_NO_YEAR;
         Date date = new Date();
         try {
-            date = Utils.simpleDateFormat.parse(birthday.getDate());
+            date = DateUtils.simpleDateFormat.parse(birthday.getDate());
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        String modifiedDate = DateUtils.formatDateTime(holder.date.getContext(), date.getTime(), flags);
+        String modifiedDate = android.text.format.DateUtils.formatDateTime(holder.date.getContext(), date.getTime(), flags);
         holder.date.setText(modifiedDate);
     }
 
+    Birthday getItemAt(int position) {
+        return dataSet.get(position);
+    }
 
-    private String findDaysLeft(Birthday birthday) {
-        ZoneId defaultZoneId = ZoneId.systemDefault();
-        Date birthDate = Utils.fromStringToDate(birthday.getDate());
-
-        LocalDate fromDate = LocalDate.now();
-        LocalDate untilDate = birthDate.toInstant().atZone(defaultZoneId).toLocalDate().withYear(fromDate.getYear());
-
-        long daysNumber = Duration.between(fromDate.atStartOfDay(), untilDate.atStartOfDay()).toDays();
-        if (untilDate.isBefore(fromDate)) {
-            daysNumber = fromDate.lengthOfYear() + daysNumber;
-        }
-
-        if (daysNumber == 0) {
-            return "Today";
-        } else if (daysNumber == 1) {
-            return "Tomorrow";
-        }
-
-        return "In " + daysNumber + " days";
+    public void deleteItem(int position) {
+        dataSet.remove(position);
+        notifyItemRemoved(position);
     }
 
     @Override

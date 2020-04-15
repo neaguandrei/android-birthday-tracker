@@ -33,7 +33,7 @@ import com.aneagu.birthdaytracker.utils.AsyncTaskListener;
 import com.aneagu.birthdaytracker.utils.ImageSendingAsync;
 import com.aneagu.birthdaytracker.utils.ImageSendingWrapper;
 import com.aneagu.birthdaytracker.utils.PhotoUtils;
-import com.aneagu.birthdaytracker.utils.Utils;
+import com.aneagu.birthdaytracker.utils.DateUtils;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.jetbrains.annotations.NotNull;
@@ -117,7 +117,6 @@ public class NewBirthdayActivity extends AppCompatActivity {
         staticReference = this;
     }
 
-    //    TODO: Picture REMOTE URL
     private void saveBirthday() {
         String fullName = tieName.getText() != null ? tieName.getText().toString() : null;
         String date = tieDate.getText() != null ? tieDate.getText().toString() : null;
@@ -342,7 +341,7 @@ public class NewBirthdayActivity extends AppCompatActivity {
         public void onDateSet(DatePicker view, int year, int month, int day) {
             pickedDate = Calendar.getInstance();
             pickedDate.set(year, month, day);
-            staticReference.tieDate.setText(Utils.fromDateToString(pickedDate.getTime()));
+            staticReference.tieDate.setText(DateUtils.fromDateToString(pickedDate.getTime()));
         }
     }
 }

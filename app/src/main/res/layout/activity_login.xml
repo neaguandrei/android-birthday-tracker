@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -60,23 +61,6 @@
                     android:textColor="#000000" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingBottom="10dp">
-
-                <CheckBox
-                    android:id="@+id/login_cb_remember_me"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Remember me" />
-            </LinearLayout>
-
 
             <Button
                 android:id="@+id/buttonLogin"
@@ -85,9 +69,24 @@
                 android:layout_gravity="center"
                 android:layout_margin="7dp"
                 android:background="@color/colorPrimaryDark"
-                android:text="@string/signin_button"
+                android:text="@string/mail_login"
+                android:textAllCaps="false"
                 android:textColor="@color/cardview_light_background"
-                android:textAllCaps="false" />
+                android:drawableLeft="@drawable/ic_email_black_24dp"
+                android:paddingLeft="15dp"/>
+
+            <Button
+                android:id="@+id/butttonLoginGmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="7dp"
+                android:background="	#8B0000"
+                android:text="@string/google_login"
+                android:textAllCaps="false"
+                android:textColor="@color/cardview_light_background"
+                android:drawableLeft="@drawable/google"
+                android:paddingLeft="15dp"/>
 
             <TextView
                 android:id="@+id/textViewSignup"
@@ -107,7 +106,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:visibility="gone" />
+            android:visibility="invisible" />
 
     </RelativeLayout>
 

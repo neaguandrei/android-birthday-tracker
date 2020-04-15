@@ -1,8 +1,11 @@
 package com.aneagu.birthdaytracker.ui.birthdays;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -14,16 +17,20 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aneagu.birthdaytracker.R;
+import com.aneagu.birthdaytracker.data.repository.local.Birthday;
 import com.aneagu.birthdaytracker.data.repository.local.BirthdayDao;
 import com.aneagu.birthdaytracker.data.module.AppController;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
+import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
@@ -43,7 +50,7 @@ public class BirthdaysFragment extends Fragment {
     BirthdayDao birthdayDao;
 
     @BindView(R.id.birthdays_list)
-    RecyclerView rvBithdays;
+    RecyclerView rvBirthdays;
 
     @BindView(R.id.searchbox)
     EditText editText;
@@ -59,29 +66,56 @@ public class BirthdaysFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_birthdays, container, false);
         ButterKnife.bind(this, root);
         editText.addTextChangedListener(getWatcher());
-
+        setUpDelete();
         return root;
     }
 
     private void supplyData(String searchKey) {
-        rvBithdays.setHasFixedSize(true);
-        rvBithdays.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvBirthdays.setHasFixedSize(true);
+        rvBirthdays.setLayoutManager(new LinearLayoutManager(getContext()));
         CompletableFuture.supplyAsync(() -> birthdayDao.findAllByName(searchKey))
                 .thenAccept(birthdays -> {
                     BirthdayAdapter adapter = new BirthdayAdapter(birthdays);
-                    rvBithdays.setAdapter(adapter);
+                    rvBirthdays.setAdapter(adapter);
                 });
     }
 
     private void supplyData() {
-        rvBithdays.setHasFixedSize(true);
-        rvBithdays.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvBirthdays.setHasFixedSize(true);
+        rvBirthdays.setLayoutManager(new LinearLayoutManager(getContext()));
         CompletableFuture.supplyAsync(() -> birthdayDao.findAll())
                 .thenAccept(birthdays -> {
                     BirthdayAdapter adapter = new BirthdayAdapter(birthdays);
-                    rvBithdays.setAdapter(adapter);
+                    rvBirthdays.setAdapter(adapter);
                 });
     }
+
+    private void setUpDelete() {
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                int position = viewHolder.getAdapterPosition();
+                BirthdayAdapter adapter = ((BirthdayAdapter) Objects.requireNonNull(rvBirthdays.getAdapter()));
+                Birthday birthday = adapter.getItemAt(position);
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Are you sure you want to delete this " + birthday.getFullName() + "'s birthday?")
+                        .setPositiveButton("Yes", (dialogInterface, i) -> {
+                            CompletableFuture.runAsync(() -> birthdayDao.delete(birthday))
+                                    .thenAccept(aVoid -> adapter.deleteItem(position));
+                        })
+                        .setNegativeButton("No", (dialogInterface, i) -> {
+                            adapter.notifyDataSetChanged();
+                        })
+                        .show();
+            }
+        }).attachToRecyclerView(rvBirthdays);
+    }
+
 
     @NotNull
     private TextWatcher getWatcher() {

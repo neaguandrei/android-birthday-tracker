@@ -8,4 +8,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="snackbar_style" parent="@style/Widget.MaterialComponents.Snackbar">
+        <item name="android:layout_margin">32dp</item>
+    </style>
+
+    <style name="snackbar_button" parent="@style/Widget.MaterialComponents.Button">
+        <item name="backgroundTint">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
 </resources>

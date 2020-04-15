@@ -12,6 +12,8 @@ import com.aneagu.birthdaytracker.data.repository.local.BirthdayDao;
 import com.aneagu.birthdaytracker.data.repository.local.AppDatabase;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -39,7 +41,13 @@ public class DbModule {
 
     @Provides
     @Singleton
-    public IBirthdaysRemoteRepository provideBirthdaysRemoteRepository(Application application) {
+    public FirebaseAuth provideFirebaseAuth() {
+        return FirebaseAuth.getInstance();
+    }
+
+    @Provides
+    @Singleton
+    public IBirthdaysRemoteRepository provideBirthdaysRemoteRepository(@NonNull Application application) {
         int playServicesStatus =
                 GoogleApiAvailability
                         .getInstance()

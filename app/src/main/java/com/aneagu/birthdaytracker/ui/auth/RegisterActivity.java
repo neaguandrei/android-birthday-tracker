@@ -4,121 +4,80 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.aneagu.birthdaytracker.R;
+import com.aneagu.birthdaytracker.data.module.AppController;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.util.Objects;
+
+import javax.inject.Inject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class RegisterActivity extends AppCompatActivity {
-    private TextInputEditText tieEmail, tiePassword, tieConfirmPassword;
-    private ProgressBar progressBar;
+    @BindView(R.id.register_tie_email)
+    TextInputEditText tieEmail;
 
-//    private DatabaseHelper databaseHelper;
-//    private FirebaseHelper firebaseHelper;
+    @BindView(R.id.register_tie_password)
+    TextInputEditText tiePassword;
+
+    @BindView(R.id.register_tie_confirm_password)
+    TextInputEditText tieConfirmPassword;
+
+    @BindView(R.id.progressbar)
+    ProgressBar progressBar;
+
+    @Inject
+    FirebaseAuth firebaseAuth;
+
+    @OnClick(R.id.textViewLogin)
+    void onReturnToLogin() {
+        finish();
+        startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+    }
+
+    @OnClick(R.id.buttonSignUp)
+    void onSignUp() {
+        registerUser();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        initializeComponents();
+        ButterKnife.bind(this);
+        ((AppController) getApplicationContext()).getAppComponent().inject(this);
     }
 
-    public void initializeComponents() {
-////        databaseHelper = new DatabaseHelper(this);
-////        firebaseHelper = FirebaseHelper.getInstance();
-//
-        tieEmail = findViewById(R.id.register_tie_email);
-        tiePassword = findViewById((R.id.register_tie_password));
-        tieConfirmPassword = findViewById((R.id.register_tie_confirm_password));
-        progressBar = findViewById(R.id.progressbar);
-        TextView tvReturn = findViewById(R.id.textViewLogin);
-        Button btnRegister = findViewById(R.id.buttonSignUp);
-
-        tvReturn.setOnClickListener(returnToLoginEvent());
-        btnRegister.setVisibility(View.VISIBLE);
-        btnRegister.setOnClickListener(registerEvent());
+    private void registerUser() {
+        if (isValid()) {
+            String email = Objects.requireNonNull(tieEmail.getText()).toString();
+            String password = Objects.requireNonNull(tiePassword.getText()).toString();
+            progressBar.setVisibility(View.VISIBLE);
+            firebaseAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+                            Toast.makeText(getApplicationContext(),
+                                    firebaseUser.getEmail() + " authenticated!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        progressBar.setVisibility(View.GONE);
+                    });
+        }
     }
-
-    @NonNull
-    private View.OnClickListener returnToLoginEvent() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-            }
-        };
-    }
-
-    @NonNull
-    private View.OnClickListener registerEvent() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                registerUser();
-            }
-        };
-    }
-
-//    private void registerUser() {
-//        if (isValid()) {
-//            String email = tieEmail.getText().toString();
-//            String password = tiePassword.getText().toString();
-//            String name = tieName.getText().toString();
-//
-//            User newUser = new User(email, password, name, null, null, null, null, false);
-//            if (verifyConnection()) {
-//                firebaseRegister(newUser);
-//            } else {
-//                Toast.makeText(getApplicationContext(), "You need internet connection to register an account", Toast.LENGTH_SHORT).show();
-//            }
-//        }
-//    }
-//
-//    private void firebaseRegister(final User user) {
-//        if (user != null) {
-//            firebaseHelper.openConnection();
-//            progressBar.setVisibility(View.VISIBLE);
-//            firebaseHelper.getAuth().createUserWithEmailAndPassword(user.getEmail(), user.getPassword())
-//                    .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-//                        @Override
-//                        public void onComplete(@NonNull Task<AuthResult> task) {
-//                            progressBar.setVisibility(View.GONE);
-//                            if (task.isSuccessful()) {
-//                                user.setFirebaseToken(firebaseHelper.getAuth().getCurrentUser().getUid());
-//                                firebaseHelper.getUsersReference()
-//                                        .child(firebaseHelper.getAuth().getCurrentUser().getUid())
-//                                        .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                    @Override
-//                                    public void onComplete(@NonNull Task<Void> task) {
-//                                        if (task.isSuccessful()) {
-//                                            Log.d("FirebaseHelper: ", "User inserted " + user.toString());
-//                                            Toast.makeText(getApplicationContext(), "Successfully registered!", Toast.LENGTH_SHORT).show();
-//                                            databaseHelper.insertUser(user);
-//                                            finish();
-//                                        } else {
-//                                            Log.e("FirebaseHelper: ", "User not inserted");
-//                                        }
-//                                    }
-//                                });
-//                            } else {
-//                                Log.e("FirebaseHelper: ", "User creation failed!");
-//
-//                                if (task.getException() instanceof FirebaseAuthUserCollisionException) {
-//                                    Toast.makeText(getApplicationContext(), "This e-mail is already registered", Toast.LENGTH_SHORT).show();
-//                                }
-//                            }
-//                        }
-//                    });
-//        } else {
-//            Toast.makeText(getApplicationContext(), "Error: user null", Toast.LENGTH_SHORT).show();
-//        }
-//    }
 
     public boolean isValid() {
         if (tieEmail.getText() == null || tieEmail.getText().toString().trim().isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(tieEmail.getText().toString()).matches()) {
@@ -144,9 +103,4 @@ public class RegisterActivity extends AppCompatActivity {
         }
         return true;
     }
-//
-//    public boolean verifyConnection() {
-//        ConnectionStatus connection = ConnectionStatus.getInstance(getApplicationContext());
-//        return connection.isOnline();
-//    }
 }
