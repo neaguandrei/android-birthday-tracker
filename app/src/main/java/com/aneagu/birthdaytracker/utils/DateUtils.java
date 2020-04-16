@@ -2,7 +2,7 @@ package com.aneagu.birthdaytracker.utils;
 
 import android.annotation.SuppressLint;
 
-import com.aneagu.birthdaytracker.data.repository.local.Birthday;
+import com.aneagu.birthdaytracker.data.repository.models.Birthday;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

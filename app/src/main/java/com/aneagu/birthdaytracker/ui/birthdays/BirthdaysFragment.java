@@ -2,10 +2,8 @@ package com.aneagu.birthdaytracker.ui.birthdays;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -22,15 +20,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aneagu.birthdaytracker.R;
-import com.aneagu.birthdaytracker.data.repository.local.Birthday;
+import com.aneagu.birthdaytracker.data.repository.models.Birthday;
 import com.aneagu.birthdaytracker.data.repository.local.BirthdayDao;
-import com.aneagu.birthdaytracker.data.module.AppController;
-import com.google.android.material.snackbar.Snackbar;
+import com.aneagu.birthdaytracker.data.component.AppController;
+import com.aneagu.birthdaytracker.utils.DateUtils;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Date;
 import java.util.Objects;
-import java.util.Timer;
 import java.util.concurrent.CompletableFuture;
 
 import javax.inject.Inject;
@@ -48,6 +47,9 @@ public class BirthdaysFragment extends Fragment {
 
     @Inject
     BirthdayDao birthdayDao;
+
+    @Inject
+    FirebaseAuth firebaseAuth;
 
     @BindView(R.id.birthdays_list)
     RecyclerView rvBirthdays;
@@ -73,7 +75,7 @@ public class BirthdaysFragment extends Fragment {
     private void supplyData(String searchKey) {
         rvBirthdays.setHasFixedSize(true);
         rvBirthdays.setLayoutManager(new LinearLayoutManager(getContext()));
-        CompletableFuture.supplyAsync(() -> birthdayDao.findAllByName(searchKey))
+        CompletableFuture.supplyAsync(() -> birthdayDao.findAllByNameAndByMailAndExisting(searchKey, Objects.requireNonNull(firebaseAuth.getCurrentUser()).getEmail()))
                 .thenAccept(birthdays -> {
                     BirthdayAdapter adapter = new BirthdayAdapter(birthdays);
                     rvBirthdays.setAdapter(adapter);
@@ -83,7 +85,7 @@ public class BirthdaysFragment extends Fragment {
     private void supplyData() {
         rvBirthdays.setHasFixedSize(true);
         rvBirthdays.setLayoutManager(new LinearLayoutManager(getContext()));
-        CompletableFuture.supplyAsync(() -> birthdayDao.findAll())
+        CompletableFuture.supplyAsync(() -> birthdayDao.findAllExistingBirthdays())
                 .thenAccept(birthdays -> {
                     BirthdayAdapter adapter = new BirthdayAdapter(birthdays);
                     rvBirthdays.setAdapter(adapter);
@@ -105,7 +107,8 @@ public class BirthdaysFragment extends Fragment {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setMessage("Are you sure you want to delete this " + birthday.getFullName() + "'s birthday?")
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
-                            CompletableFuture.runAsync(() -> birthdayDao.delete(birthday))
+                            birthday.setDeletedOn(DateUtils.fromDateToString(new Date()));
+                            CompletableFuture.runAsync(() -> birthdayDao.update(birthday))
                                     .thenAccept(aVoid -> adapter.deleteItem(position));
                         })
                         .setNegativeButton("No", (dialogInterface, i) -> {

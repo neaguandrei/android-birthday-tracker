@@ -60,6 +60,15 @@
                 android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/phone_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="2dp"
+                android:text="Ph: 0723111138"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+
+            <TextView
                 android:id="@+id/time_left"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

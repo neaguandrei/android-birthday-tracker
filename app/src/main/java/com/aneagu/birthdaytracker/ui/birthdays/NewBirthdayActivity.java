@@ -10,7 +10,6 @@ import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -21,20 +20,20 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.DatePicker;
 import android.widget.ProgressBar;
 
 import com.aneagu.birthdaytracker.R;
-import com.aneagu.birthdaytracker.data.repository.local.Birthday;
+import com.aneagu.birthdaytracker.data.repository.models.Birthday;
 import com.aneagu.birthdaytracker.data.repository.local.BirthdayDao;
-import com.aneagu.birthdaytracker.data.module.AppController;
+import com.aneagu.birthdaytracker.data.component.AppController;
 import com.aneagu.birthdaytracker.utils.AsyncTaskListener;
 import com.aneagu.birthdaytracker.utils.ImageSendingAsync;
 import com.aneagu.birthdaytracker.utils.ImageSendingWrapper;
 import com.aneagu.birthdaytracker.utils.PhotoUtils;
 import com.aneagu.birthdaytracker.utils.DateUtils;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -47,6 +46,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
@@ -74,6 +74,9 @@ public class NewBirthdayActivity extends AppCompatActivity {
 
     @Inject
     BirthdayDao birthdayDao;
+
+    @Inject
+    FirebaseAuth firebaseAuth;
 
     private static Calendar pickedDate = null;
 
@@ -121,7 +124,11 @@ public class NewBirthdayActivity extends AppCompatActivity {
         String fullName = tieName.getText() != null ? tieName.getText().toString() : null;
         String date = tieDate.getText() != null ? tieDate.getText().toString() : null;
         String imageUri = selectedImage != null ? selectedImage.toString() : null;
-        Birthday birthday = new Birthday(fullName, date, null, imageUri);
+        String currentMail = null;
+        if (firebaseAuth.getCurrentUser() != null) {
+            currentMail = firebaseAuth.getCurrentUser().getEmail();
+        }
+        Birthday birthday = new Birthday(fullName, date, imageUri, currentMail);
         CompletableFuture.runAsync(() -> {
             birthdayDao.save(birthday);
         }).thenAccept(aVoid -> {
@@ -295,13 +302,6 @@ public class NewBirthdayActivity extends AppCompatActivity {
         asyncImageSending.execute(new ImageSendingWrapper(currentPhotoPath, width, height));
     }
 
-    public String getImageExtension(Uri uri) {
-        ContentResolver contentResolver = getContentResolver();
-        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
-    }
-
-
     private boolean isValid() {
         if (Objects.isNull(tieName) || tieName.getText() == null || tieName.getText().toString().isEmpty()) {
             tieName.setError("Name can't be empty!");
@@ -315,6 +315,23 @@ public class NewBirthdayActivity extends AppCompatActivity {
                 tiePhone.requestFocus();
                 return false;
             }
+        }
+
+        try {
+            return CompletableFuture.supplyAsync(() -> {
+                List<Birthday> birthdays = birthdayDao.findAllByNameAndByMailAndExisting(tieName.getText().toString(),
+                        Objects.requireNonNull(firebaseAuth.getCurrentUser()).getEmail());
+                if (birthdays.size() > 0) {
+                    runOnUiThread(() -> {
+                        tieName.setError("Name already exists!");
+                        tieName.requestFocus();
+                    });
+                    return false;
+                }
+                return true;
+            }).get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
         }
 
         return true;
@@ -334,9 +351,13 @@ public class NewBirthdayActivity extends AppCompatActivity {
             int year = pickedDate.get(Calendar.YEAR);
             int month = pickedDate.get(Calendar.MONTH);
             int day = pickedDate.get(Calendar.DAY_OF_MONTH);
+            DatePickerDialog dialog = new DatePickerDialog(Objects.requireNonNull(getActivity()),
+                    AlertDialog.THEME_HOLO_LIGHT, this, year, month, day);
+            dialog.getDatePicker().setMaxDate(System.currentTimeMillis());
 
-            return new DatePickerDialog(Objects.requireNonNull(getActivity()), AlertDialog.THEME_HOLO_LIGHT, this, year, month, day);
+            return dialog;
         }
+
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
             pickedDate = Calendar.getInstance();

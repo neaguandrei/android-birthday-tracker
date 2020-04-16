@@ -1,10 +1,13 @@
-package com.aneagu.birthdaytracker.data.repository.local;
+package com.aneagu.birthdaytracker.data.repository.models;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity
+@Entity(indices = {@Index(value = {"full_name"},
+        unique = true)})
 public class Birthday {
 
     @PrimaryKey
@@ -16,26 +19,30 @@ public class Birthday {
     @ColumnInfo(name = "date")
     private String date;
 
-    @ColumnInfo(name = "picture_url")
-    private String pictureUrl;
-
     @ColumnInfo(name = "picture_local")
     private String pictureLocal;
 
+    @ColumnInfo(name = "phone_number")
+    private String phNumber;
+
     @ColumnInfo(name = "deleted_on")
-    private String deleteOn;
+    private String deletedOn;
 
     @ColumnInfo(name = "updated_on")
     private String updatedOn;
 
+    @ColumnInfo(name = "authenticated_email")
+    private String authenticatedEmail;
+
+    @Ignore
     public Birthday() {
     }
 
-    public Birthday(String fullName, String date, String pictureUrl, String pictureLocal) {
+    public Birthday(String fullName, String date, String pictureLocal, String authenticatedEmail) {
         this.fullName = fullName;
         this.date = date;
-        this.pictureUrl = pictureUrl;
         this.pictureLocal = pictureLocal;
+        this.authenticatedEmail = authenticatedEmail;
     }
 
     public Long getId() {
@@ -62,14 +69,6 @@ public class Birthday {
         this.date = date;
     }
 
-    public String getPictureUrl() {
-        return pictureUrl;
-    }
-
-    public void setPictureUrl(String pictureUrl) {
-        this.pictureUrl = pictureUrl;
-    }
-
     public String getPictureLocal() {
         return pictureLocal;
     }
@@ -78,12 +77,12 @@ public class Birthday {
         this.pictureLocal = pictureLocal;
     }
 
-    public String getDeleteOn() {
-        return deleteOn;
+    public String getDeletedOn() {
+        return deletedOn;
     }
 
-    public void setDeleteOn(String deleteOn) {
-        this.deleteOn = deleteOn;
+    public void setDeletedOn(String deletedOn) {
+        this.deletedOn = deletedOn;
     }
 
     public String getUpdatedOn() {
@@ -93,6 +92,23 @@ public class Birthday {
     public void setUpdatedOn(String updatedOn) {
         this.updatedOn = updatedOn;
     }
+
+    public String getPhNumber() {
+        return phNumber;
+    }
+
+    public void setPhNumber(String phNumber) {
+        this.phNumber = phNumber;
+    }
+
+    public String getAuthenticatedEmail() {
+        return authenticatedEmail;
+    }
+
+    public void setAuthenticatedEmail(String authenticatedEmail) {
+        this.authenticatedEmail = authenticatedEmail;
+    }
+
 
     @Override
     public String toString() {

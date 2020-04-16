@@ -19,10 +19,12 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.aneagu.birthdaytracker.R;
-import com.aneagu.birthdaytracker.data.module.AppController;
+import com.aneagu.birthdaytracker.data.component.AppController;
+import com.aneagu.birthdaytracker.data.repository.remote.BirthdayRepository;
 import com.aneagu.birthdaytracker.data.repository.local.BirthdayDao;
+import com.aneagu.birthdaytracker.data.repository.models.BirthdayDto;
+import com.aneagu.birthdaytracker.data.repository.models.Mapper;
 import com.aneagu.birthdaytracker.ui.auth.LoginActivity;
-import com.aneagu.birthdaytracker.ui.birthdays.NewBirthdayActivity;
 import com.aneagu.birthdaytracker.utils.ConnectionStatus;
 import com.aneagu.birthdaytracker.utils.Constants;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,10 +32,10 @@ import com.google.firebase.auth.FirebaseUser;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -64,6 +66,9 @@ public class SettingsFragment extends Fragment {
     @Inject
     FirebaseAuth firebaseAuth;
 
+    @Inject
+    BirthdayRepository birthdaysRemoteRepository;
+
     private FirebaseUser firebaseUser;
 
     private ObjectAnimator objectAnimator;
@@ -76,6 +81,11 @@ public class SettingsFragment extends Fragment {
 
     @OnClick(R.id.sign_in)
     void onSignIn() {
+        if (!ConnectionStatus.verifyConnection(getContext())) {
+            Toast.makeText(getContext(), "You need internet to authenticate!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         signIn();
     }
 
@@ -90,15 +100,23 @@ public class SettingsFragment extends Fragment {
             }
 
             imageCake.setVisibility(View.VISIBLE);
-            objectAnimator.setDuration(4000);
+            objectAnimator.setDuration(1000);
             objectAnimator.start();
             Handler handler = new Handler();
             handler.postDelayed(() -> {
                 imageCake.setVisibility(View.INVISIBLE);
                 Toast.makeText(getContext(), "Birthdays synchronized successfully!", Toast.LENGTH_SHORT).show();
-            }, 4000);
-//            TODO: Firebase Synchronization
+            }, 1000);
+
+            sync();
         }
+    }
+
+    private void sync() {
+        CompletableFuture.supplyAsync(() -> birthdayDao.findAll())
+                .thenAccept(birthdays -> {
+                    birthdaysRemoteRepository.synchronizeData(birthdayDao, birthdays, firebaseUser.getEmail());
+                });
     }
 
     @OnClick(R.id.share)
@@ -147,7 +165,7 @@ public class SettingsFragment extends Fragment {
     }
 
     private void setUpAnimation() {
-        objectAnimator = ObjectAnimator.ofFloat(imageCake, "rotation", 720);
+        objectAnimator = ObjectAnimator.ofFloat(imageCake, "rotation", 360);
     }
 
     private void signIn() {

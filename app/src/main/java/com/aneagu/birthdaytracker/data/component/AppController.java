@@ -1,11 +1,9 @@
-package com.aneagu.birthdaytracker.data.module;
+package com.aneagu.birthdaytracker.data.component;
 
 import android.app.Application;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.os.Build;
 
-import static com.aneagu.birthdaytracker.utils.Constants.CHANNEL_ID;
+import com.aneagu.birthdaytracker.data.module.AppModule;
+import com.aneagu.birthdaytracker.data.module.DbModule;
 
 public class AppController extends Application {
     private AppComponent appComponent = DaggerAppComponent.builder()

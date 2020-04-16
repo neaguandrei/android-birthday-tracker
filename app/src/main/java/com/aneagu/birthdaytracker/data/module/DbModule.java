@@ -5,19 +5,19 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.room.Room;
 
-import com.aneagu.birthdaytracker.data.models.Birthday;
-import com.aneagu.birthdaytracker.data.repository.BirthdaysRemoteRepository;
-import com.aneagu.birthdaytracker.data.repository.IBirthdaysRemoteRepository;
+import com.aneagu.birthdaytracker.data.repository.models.Birthday;
+import com.aneagu.birthdaytracker.data.repository.remote.BirthdayRepository;
+import com.aneagu.birthdaytracker.data.repository.remote.BirthdayRepositoryImpl;
 import com.aneagu.birthdaytracker.data.repository.local.BirthdayDao;
 import com.aneagu.birthdaytracker.data.repository.local.AppDatabase;
+import com.aneagu.birthdaytracker.data.repository.models.BirthdayDto;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.List;
 
 import javax.inject.Singleton;
 
@@ -30,7 +30,7 @@ public class DbModule {
     @Provides
     @Singleton
     public AppDatabase provideRoomDatabase(@NonNull Application application) {
-        return Room.databaseBuilder(application, AppDatabase.class, "birthday-tracker-db").build();
+        return Room.databaseBuilder(application, AppDatabase.class, "birthday-tracker-db").allowMainThreadQueries().build();
     }
 
     @Provides
@@ -47,7 +47,7 @@ public class DbModule {
 
     @Provides
     @Singleton
-    public IBirthdaysRemoteRepository provideBirthdaysRemoteRepository(@NonNull Application application) {
+    public BirthdayRepository provideBirthdaysRemoteRepository(@NonNull Application application) {
         int playServicesStatus =
                 GoogleApiAvailability
                         .getInstance()
@@ -55,35 +55,16 @@ public class DbModule {
         if (playServicesStatus == ConnectionResult.SUCCESS) {
             DatabaseReference databaseReference =
                     FirebaseDatabase
-                            .getInstance()
-                            .getReference();
-            return new BirthdaysRemoteRepository(databaseReference);
+                            .getInstance().getReference("birthdays");
+            return new BirthdayRepositoryImpl(databaseReference);
         } else {
             return getFailedRepository();
         }
     }
 
-    private IBirthdaysRemoteRepository getFailedRepository() {
-        return new IBirthdaysRemoteRepository() {
-            @Override
-            public void createBirthday(Birthday birthday, String currentMail) {
-                throw new RuntimeException("FireBase not supported");
-            }
-
-            @Override
-            public CompletableFuture getBirthdays() {
-                throw new RuntimeException("FireBase not supported");
-            }
-
-            @Override
-            public CompletableFuture updateBirthday(Birthday birthday) {
-                throw new RuntimeException("FireBase not supported");
-            }
-
-            @Override
-            public CompletableFuture deleteBirthday(Birthday birthday) {
-                throw new RuntimeException("FireBase not supported");
-            }
+    private BirthdayRepository getFailedRepository() {
+        return (daoReference, localBirthdays, currentMail) -> {
+            throw new RuntimeException("Phone version doesn't support remote database!");
         };
     }
 }

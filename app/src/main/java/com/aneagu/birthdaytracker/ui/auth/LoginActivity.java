@@ -12,7 +12,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.aneagu.birthdaytracker.R;
-import com.aneagu.birthdaytracker.data.module.AppController;
+import com.aneagu.birthdaytracker.data.component.AppController;
+import com.aneagu.birthdaytracker.utils.ConnectionStatus;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -57,6 +58,11 @@ public class LoginActivity extends AppCompatActivity {
 
     @OnClick(R.id.butttonLoginGmail)
     void onGoogleLogin() {
+        if (!ConnectionStatus.verifyConnection(getApplicationContext())) {
+            Toast.makeText(getApplicationContext(), "You need internet to authenticate!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -114,6 +120,11 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void authMail() {
+        if (!ConnectionStatus.verifyConnection(getApplicationContext())) {
+            Toast.makeText(getApplicationContext(), "You need internet to authenticate!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String email = Objects.requireNonNull(tieEmail.getText()).toString();
         String password = Objects.requireNonNull(tiePassword.getText()).toString();
 

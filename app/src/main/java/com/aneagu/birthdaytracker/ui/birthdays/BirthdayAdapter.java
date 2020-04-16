@@ -12,9 +12,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.aneagu.birthdaytracker.R;
-import com.aneagu.birthdaytracker.data.repository.local.Birthday;
+import com.aneagu.birthdaytracker.data.repository.models.Birthday;
 import com.aneagu.birthdaytracker.utils.DateUtils;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -28,10 +27,6 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class BirthdayAdapter extends RecyclerView.Adapter<BirthdayAdapter.ViewHolder> {
 
     private List<Birthday> dataSet;
-
-    private Birthday recentlyDeletedItem;
-
-    private int recentlyDeletedItemPosition;
 
     public BirthdayAdapter(List<Birthday> dataSet) {
         this.dataSet = dataSet;
@@ -66,6 +61,11 @@ public class BirthdayAdapter extends RecyclerView.Adapter<BirthdayAdapter.ViewHo
 
         holder.name.setText(birthday.getFullName());
         holder.daysUntil.setText(DateUtils.findDaysLeft(birthday));
+        if (birthday.getPhNumber() != null) {
+            holder.phoneNumber.setText(birthday.getPhNumber());
+        } else {
+            holder.phoneNumber.setVisibility(View.GONE);
+        }
     }
 
     @Nullable
@@ -118,6 +118,8 @@ public class BirthdayAdapter extends RecyclerView.Adapter<BirthdayAdapter.ViewHo
 
         private TextView letter;
 
+        private TextView phoneNumber;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             picture = itemView.findViewById(R.id.profile);
@@ -125,6 +127,7 @@ public class BirthdayAdapter extends RecyclerView.Adapter<BirthdayAdapter.ViewHo
             date = itemView.findViewById(R.id.birthdate);
             daysUntil = itemView.findViewById(R.id.time_left);
             letter = itemView.findViewById(R.id.letter);
+            phoneNumber = itemView.findViewById(R.id.phone_number);
         }
     }
 }

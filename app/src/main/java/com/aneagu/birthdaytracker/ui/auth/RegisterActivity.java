@@ -10,7 +10,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.aneagu.birthdaytracker.R;
-import com.aneagu.birthdaytracker.data.module.AppController;
+import com.aneagu.birthdaytracker.data.component.AppController;
+import com.aneagu.birthdaytracker.utils.ConnectionStatus;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -59,6 +60,11 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void registerUser() {
+        if (!ConnectionStatus.verifyConnection(getApplicationContext())) {
+            Toast.makeText(getApplicationContext(), "You need internet to authenticate!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (isValid()) {
             String email = Objects.requireNonNull(tieEmail.getText()).toString();
             String password = Objects.requireNonNull(tiePassword.getText()).toString();
