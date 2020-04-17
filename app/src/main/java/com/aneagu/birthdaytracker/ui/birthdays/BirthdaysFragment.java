@@ -75,7 +75,7 @@ public class BirthdaysFragment extends Fragment {
     private void supplyData(String searchKey) {
         rvBirthdays.setHasFixedSize(true);
         rvBirthdays.setLayoutManager(new LinearLayoutManager(getContext()));
-        CompletableFuture.supplyAsync(() -> birthdayDao.findAllByNameAndByMailAndExisting(searchKey, Objects.requireNonNull(firebaseAuth.getCurrentUser()).getEmail()))
+        CompletableFuture.supplyAsync(() -> birthdayDao.findAllByName(searchKey))
                 .thenAccept(birthdays -> {
                     BirthdayAdapter adapter = new BirthdayAdapter(birthdays);
                     rvBirthdays.setAdapter(adapter);

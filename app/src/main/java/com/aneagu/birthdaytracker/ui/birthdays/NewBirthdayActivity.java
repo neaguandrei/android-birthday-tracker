@@ -319,8 +319,7 @@ public class NewBirthdayActivity extends AppCompatActivity {
 
         try {
             return CompletableFuture.supplyAsync(() -> {
-                List<Birthday> birthdays = birthdayDao.findAllByNameAndByMailAndExisting(tieName.getText().toString(),
-                        Objects.requireNonNull(firebaseAuth.getCurrentUser()).getEmail());
+                List<Birthday> birthdays = birthdayDao.findAllByName(tieName.getText().toString());
                 if (birthdays.size() > 0) {
                     runOnUiThread(() -> {
                         tieName.setError("Name already exists!");

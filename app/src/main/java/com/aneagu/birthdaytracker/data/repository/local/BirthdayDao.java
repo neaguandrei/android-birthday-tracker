@@ -27,8 +27,8 @@ public interface BirthdayDao {
     @Query("SELECT * FROM birthday")
     List<Birthday> findAll();
 
-    @Query("SELECT * FROM birthday WHERE full_name LIKE :fullName || '%' AND authenticated_email LIKE :currentMail AND deleted_on IS NULL")
-    List<Birthday> findAllByNameAndByMailAndExisting(String fullName, String currentMail);
+    @Query("SELECT * FROM birthday WHERE full_name LIKE :fullName || '%' AND deleted_on IS NULL")
+    List<Birthday> findAllByName(String fullName);
 
     @Query("SELECT * FROM birthday WHERE deleted_on IS NULL")
     List<Birthday> findAllExistingBirthdays();
