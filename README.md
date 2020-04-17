@@ -1,7 +1,7 @@
 # android-birthday-tracker
 Birthday Tracker &amp; Reminder
 Demo: https://youtu.be/4S8SibNlc3Y
-
+Firebase Account: birthday.tracker.app.noreply@gmail.com
 Technologies: Android SDK, Java 8, ROOM, Firebase, Dagger (DI)
 
 Description:
