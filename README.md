@@ -1,4 +1,4 @@
-# android-birthdayDto-tracker
+# android-birthday-tracker
 Birthday Tracker &amp; Reminder
 Demo: https://youtu.be/4S8SibNlc3Y
 
