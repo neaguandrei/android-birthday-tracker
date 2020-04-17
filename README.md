@@ -1,9 +1,17 @@
 # android-birthdayDto-tracker
 Birthday Tracker &amp; Reminder
-
 Demo: https://youtu.be/4S8SibNlc3Y
+
 Technologies: Android SDK, Java 8, ROOM, Firebase, Dagger (DI)
 
+Description:
+- Main use of the application is to store birthdays, the application calculates days remaining and pushes notifications when you enter the application and there's a birhtday in the specific day.
+- Birthdays are stored as a picture, birthdate, name and optionally a phone number
+- Birthdays can also be deleted
+- It also allows the users to synchronize de stored birthdays between various devices
+- Allows both Social Login and Mail Login
+
+Implementation details:
 - Camera use to  set a profile picture on birthdays
 - RecyclerView with user's saved birthdays along with their specific data
 - BottomNavigation menu for the application
