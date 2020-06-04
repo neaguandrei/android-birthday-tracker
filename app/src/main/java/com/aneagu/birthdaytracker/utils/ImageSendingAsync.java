@@ -25,9 +25,6 @@ public class ImageSendingAsync extends AsyncTask<ImageSendingWrapper, Void, Bitm
         }
     }
 
-
-
-
     @Override
     protected Bitmap doInBackground(ImageSendingWrapper... imageSendingWrappers) {
         ImageSendingWrapper wrapper = imageSendingWrappers[0];
@@ -48,14 +45,11 @@ public class ImageSendingAsync extends AsyncTask<ImageSendingWrapper, Void, Bitm
                 bmOptions.inSampleSize = widthRatio;
             }
         }
-
         bmOptions.inJustDecodeBounds = false;
 
         return BitmapFactory.decodeFile(currentPhotoPath, bmOptions);
 
     }
-
-
 
     public void setListenerReference(AsyncTaskListener<Bitmap> listenerReference) {
         this.listenerReference = new WeakReference<>(listenerReference);
